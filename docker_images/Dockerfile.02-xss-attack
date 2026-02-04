@@ -1,0 +1,43 @@
+FROM nginx:alpine
+
+# Create XSS vulnerable page
+RUN echo '<!DOCTYPE html>' > /usr/share/nginx/html/index.html && \
+    echo '<html><head><title>Comment Board</title>' >> /usr/share/nginx/html/index.html && \
+    echo '<style>' >> /usr/share/nginx/html/index.html && \
+    echo 'body { background: #0a0e27; color: #00ff41; font-family: monospace; padding: 30px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'input, textarea { background: #1a1a2e; border: 1px solid #00ff41; color: #00ff41; padding: 10px; width: 100%; margin: 5px 0; }' >> /usr/share/nginx/html/index.html && \
+    echo 'button { background: #00ff41; color: #0a0e27; padding: 10px 20px; border: none; cursor: pointer; }' >> /usr/share/nginx/html/index.html && \
+    echo '.comment { border: 1px solid #00f5ff; padding: 10px; margin: 10px 0; }' >> /usr/share/nginx/html/index.html && \
+    echo '</style></head><body>' >> /usr/share/nginx/html/index.html && \
+    echo '<h1>💬 COMMENT BOARD</h1>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Post a comment below. Inject XSS to get the flag!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<input id="name" placeholder="Your Name"><br>' >> /usr/share/nginx/html/index.html && \
+    echo '<textarea id="comment" placeholder="Your Comment" rows="4"></textarea><br>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="postComment()">Post Comment</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="comments"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr><p style="color: #00f5ff; font-size: 12px;">💡 Hint: The comment field doesn'\''t sanitize HTML. Try injecting a script tag!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<script>' >> /usr/share/nginx/html/index.html && \
+    echo 'const FLAG = "CTF{xss_p0p_4l3rt}";' >> /usr/share/nginx/html/index.html && \
+    echo 'function postComment() {' >> /usr/share/nginx/html/index.html && \
+    echo '  const name = document.getElementById("name").value;' >> /usr/share/nginx/html/index.html && \
+    echo '  const comment = document.getElementById("comment").value;' >> /usr/share/nginx/html/index.html && \
+    echo '  const div = document.createElement("div");' >> /usr/share/nginx/html/index.html && \
+    echo '  div.className = "comment";' >> /usr/share/nginx/html/index.html && \
+    echo '  div.innerHTML = "<strong>" + name + ":</strong><br>" + comment;' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("comments").appendChild(div);' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("name").value = "";' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("comment").value = "";' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'window.showFlag = function() {' >> /usr/share/nginx/html/index.html && \
+    echo '  alert("🎉 XSS Successful! Flag: " + FLAG);' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '</script>' >> /usr/share/nginx/html/index.html && \
+    echo '<!-- Try: <script>showFlag()</script> or <img src=x onerror="showFlag()"> -->' >> /usr/share/nginx/html/index.html && \
+    echo '</body></html>' >> /usr/share/nginx/html/index.html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build: docker build -t cyberlab/xss-attack:v1 -f Dockerfile.02-xss-attack .
+# Run: docker run -p 8002:80 cyberlab/xss-attack:v1

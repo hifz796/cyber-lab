@@ -1,0 +1,966 @@
+/* CyberLab - Cyberpunk Hacker Aesthetic */
+
+:root {
+    --cyber-bg: #000814;
+    --cyber-bg-light: #0a1128;
+    --cyber-surface: #0f1f3d;
+    --cyber-border: #1a3a52;
+    
+    --neon-green: #00ff41;
+    --neon-cyan: #00f5ff;
+    --neon-pink: #ff006e;
+    --neon-yellow: #ffbe0b;
+    --neon-purple: #a100f2;
+    
+    --text-primary: #e0e6ed;
+    --text-secondary: #8892a6;
+    --text-dim: #4d5566;
+    
+    --shadow-neon: 0 0 20px rgba(0, 255, 65, 0.5);
+    --shadow-cyan: 0 0 20px rgba(0, 245, 255, 0.5);
+    --shadow-pink: 0 0 20px rgba(255, 0, 110, 0.5);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--cyber-bg);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* ==================== BACKGROUND ==================== */
+
+.cyber-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.grid-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(var(--cyber-border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--cyber-border) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.2;
+    animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(50px); }
+}
+
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+    animation: scan 4s linear infinite;
+    box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+@keyframes scan {
+    0% { top: 0; opacity: 0; }
+    50% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+#matrix-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+}
+
+/* ==================== HEADER ==================== */
+
+.main-header {
+    position: sticky;
+    top: 0;
+    background: rgba(10, 17, 40, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--neon-green);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    z-index: 100;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.logo {
+    font-family: 'Audiowide', cursive;
+    font-size: 1.8rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+    letter-spacing: 2px;
+    animation: flicker 3s infinite;
+}
+
+.logo-bracket {
+    color: var(--neon-cyan);
+}
+
+.logo-text .accent {
+    color: var(--neon-pink);
+}
+
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    94% { opacity: 0.9; }
+    96% { opacity: 1; }
+    98% { opacity: 0.95; }
+}
+
+.main-nav {
+    display: flex;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.nav-link {
+    font-family: 'Share Tech Mono', monospace;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-icon {
+    color: var(--neon-cyan);
+    margin-right: 0.5rem;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.nav-link:hover::before {
+    left: 100%;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--neon-green);
+    border-color: var(--neon-green);
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+/* ==================== BUTTONS ==================== */
+
+.cyber-btn {
+    font-family: 'Share Tech Mono', monospace;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: 2px solid var(--neon-green);
+    color: var(--neon-green);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.cyber-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--neon-green);
+    transition: left 0.3s;
+    z-index: -1;
+}
+
+.cyber-btn:hover::before {
+    left: 0;
+}
+
+.cyber-btn:hover {
+    color: var(--cyber-bg);
+    box-shadow: var(--shadow-neon);
+}
+
+.cyber-btn.secondary {
+    border-color: var(--neon-cyan);
+    color: var(--neon-cyan);
+}
+
+.cyber-btn.secondary::before {
+    background: var(--neon-cyan);
+}
+
+.cyber-btn.danger {
+    border-color: var(--neon-pink);
+    color: var(--neon-pink);
+}
+
+.cyber-btn.danger::before {
+    background: var(--neon-pink);
+}
+
+.cyber-btn.large {
+    padding: 1.25rem 3rem;
+    font-size: 1.1rem;
+}
+
+.cyber-btn.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(0, 255, 65, 0.5); }
+    50% { box-shadow: 0 0 25px rgba(0, 255, 65, 0.8); }
+}
+
+.btn-glitch {
+    position: relative;
+}
+
+.cyber-btn:hover .btn-glitch::before,
+.cyber-btn:hover .btn-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ==================== MAIN CONTAINER ==================== */
+
+.main-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* ==================== LANDING SECTION ==================== */
+
+.landing-section {
+    min-height: calc(100vh - 100px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero {
+    text-align: center;
+    max-width: 900px;
+}
+
+.hero-title {
+    font-family: 'Audiowide', cursive;
+    font-size: 4rem;
+    color: var(--neon-green);
+    text-shadow: 
+        0 0 10px var(--neon-green),
+        0 0 20px var(--neon-green),
+        0 0 30px var(--neon-green);
+    margin-bottom: 1rem;
+    letter-spacing: 8px;
+}
+
+.glitch {
+    position: relative;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -2px 0 var(--neon-pink);
+    clip: rect(24px, 550px, 90px, 0);
+    animation: glitch-anim 3s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: 2px 0 var(--neon-cyan);
+    clip: rect(85px, 550px, 140px, 0);
+    animation: glitch-anim 2s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+    0% { clip: rect(15px, 9999px, 94px, 0); }
+    20% { clip: rect(79px, 9999px, 40px, 0); }
+    40% { clip: rect(32px, 9999px, 138px, 0); }
+    60% { clip: rect(103px, 9999px, 74px, 0); }
+    80% { clip: rect(44px, 9999px, 116px, 0); }
+    100% { clip: rect(68px, 9999px, 20px, 0); }
+}
+
+.hero-subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.2rem;
+    color: var(--neon-cyan);
+    letter-spacing: 4px;
+    margin-bottom: 3rem;
+}
+
+.hero-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+}
+
+.feature-item {
+    padding: 1.5rem;
+    border: 1px solid var(--cyber-border);
+    background: rgba(15, 31, 61, 0.5);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+}
+
+.feature-item:hover {
+    border-color: var(--neon-green);
+    box-shadow: var(--shadow-neon);
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature-text {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+}
+
+/* ==================== CONTENT SECTIONS ==================== */
+
+.content-section {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.section-title {
+    font-family: 'Audiowide', cursive;
+    font-size: 2rem;
+    color: var(--neon-green);
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px var(--neon-green);
+}
+
+.terminal-prompt {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--neon-cyan);
+    font-size: 0.9rem;
+}
+
+.cursor {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* ==================== STATS GRID ==================== */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, var(--cyber-surface) 0%, rgba(15, 31, 61, 0.6) 100%);
+    border: 1px solid var(--cyber-border);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.stat-card:hover::before {
+    left: 100%;
+}
+
+.stat-card:hover {
+    border-color: var(--neon-green);
+    box-shadow: var(--shadow-neon);
+    transform: translateY(-5px);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    color: var(--neon-cyan);
+}
+
+.stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+}
+
+.stat-value {
+    font-family: 'Audiowide', cursive;
+    font-size: 3rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 10px var(--neon-green);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-footer {
+    margin-top: 1rem;
+}
+
+.stat-meta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+}
+
+.progress-bar {
+    height: 4px;
+    background: var(--cyber-border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan));
+    box-shadow: 0 0 10px var(--neon-green);
+    transition: width 1s ease;
+}
+
+/* ==================== PANELS ==================== */
+
+.panel-container {
+    background: rgba(15, 31, 61, 0.5);
+    border: 1px solid var(--cyber-border);
+    margin-bottom: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--cyber-border);
+    background: rgba(0, 255, 65, 0.05);
+}
+
+.panel-icon {
+    font-size: 1.5rem;
+}
+
+.panel-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+    color: var(--neon-green);
+    letter-spacing: 2px;
+}
+
+.panel-body {
+    padding: 1.5rem;
+}
+
+/* ==================== CHALLENGES GRID ==================== */
+
+.challenge-filters {
+    display: flex;
+    gap: 1rem;
+}
+
+.cyber-select {
+    font-family: 'Share Tech Mono', monospace;
+    padding: 0.75rem 1rem;
+    background: var(--cyber-surface);
+    border: 1px solid var(--cyber-border);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.cyber-select:focus {
+    outline: none;
+    border-color: var(--neon-green);
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.challenges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.challenge-card {
+    background: rgba(15, 31, 61, 0.6);
+    border: 1px solid var(--cyber-border);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.challenge-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--neon-green);
+    transform: scaleY(0);
+    transition: transform 0.3s;
+}
+
+.challenge-card:hover::before {
+    transform: scaleY(1);
+}
+
+.challenge-card:hover {
+    border-color: var(--neon-green);
+    box-shadow: var(--shadow-neon);
+    transform: translateX(8px);
+}
+
+.challenge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.challenge-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.challenge-category {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--neon-cyan);
+    letter-spacing: 1px;
+}
+
+.difficulty-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.difficulty-1 {
+    background: rgba(0, 255, 65, 0.2);
+    color: var(--neon-green);
+    border: 1px solid var(--neon-green);
+}
+
+.difficulty-2 {
+    background: rgba(255, 190, 11, 0.2);
+    color: var(--neon-yellow);
+    border: 1px solid var(--neon-yellow);
+}
+
+.difficulty-3 {
+    background: rgba(255, 0, 110, 0.2);
+    color: var(--neon-pink);
+    border: 1px solid var(--neon-pink);
+}
+
+.challenge-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.challenge-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--cyber-border);
+}
+
+.challenge-points {
+    font-family: 'Audiowide', cursive;
+    color: var(--neon-green);
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.status-completed {
+    background: rgba(0, 255, 65, 0.2);
+    color: var(--neon-green);
+}
+
+.status-in-progress {
+    background: rgba(255, 190, 11, 0.2);
+    color: var(--neon-yellow);
+}
+
+.status-not-started {
+    background: rgba(77, 85, 102, 0.2);
+    color: var(--text-dim);
+}
+
+/* ==================== LEADERBOARD ==================== */
+
+.leaderboard-container {
+    background: rgba(15, 31, 61, 0.5);
+    border: 1px solid var(--cyber-border);
+}
+
+.leaderboard-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 150px 150px;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: rgba(0, 255, 65, 0.05);
+    border-bottom: 1px solid var(--cyber-border);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+}
+
+.leaderboard-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.leaderboard-item {
+    display: grid;
+    grid-template-columns: 80px 1fr 150px 150px;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--cyber-border);
+    transition: all 0.3s;
+}
+
+.leaderboard-item:hover {
+    background: rgba(0, 255, 65, 0.05);
+    border-left: 4px solid var(--neon-green);
+}
+
+.leader-rank {
+    font-family: 'Audiowide', cursive;
+    font-size: 1.2rem;
+    color: var(--neon-cyan);
+}
+
+.leader-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.leader-points {
+    font-family: 'Audiowide', cursive;
+    color: var(--neon-green);
+}
+
+.leader-challenges {
+    color: var(--text-secondary);
+}
+
+/* ==================== MODALS ==================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 8, 20, 0.95);
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    position: relative;
+    max-width: 500px;
+    margin: 10% auto;
+    animation: slideUp 0.3s;
+}
+
+.modal-content.large {
+    max-width: 800px;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.cyber-panel {
+    background: var(--cyber-surface);
+    border: 2px solid var(--neon-green);
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+    padding: 2rem;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.3s;
+    z-index: 1;
+}
+
+.modal-close:hover {
+    color: var(--neon-pink);
+}
+
+.modal-title {
+    font-family: 'Audiowide', cursive;
+    font-size: 1.5rem;
+    color: var(--neon-green);
+    letter-spacing: 3px;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 10px var(--neon-green);
+}
+
+/* ==================== FORMS ==================== */
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+.cyber-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(10, 17, 40, 0.8);
+    border: 1px solid var(--cyber-border);
+    color: var(--text-primary);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.cyber-input:focus {
+    outline: none;
+    border-color: var(--neon-green);
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.cyber-btn.full-width {
+    width: 100%;
+}
+
+.error-message {
+    background: rgba(255, 0, 110, 0.1);
+    border: 1px solid var(--neon-pink);
+    color: var(--neon-pink);
+    padding: 0.75rem;
+    margin-top: 1rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+}
+
+.auth-switch {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.cyber-link {
+    color: var(--neon-cyan);
+    text-decoration: none;
+    margin-left: 0.5rem;
+    transition: color 0.3s;
+}
+
+.cyber-link:hover {
+    color: var(--neon-green);
+}
+
+/* ==================== NOTIFICATIONS ==================== */
+
+.notification {
+    position: fixed;
+    top: 100px;
+    right: -400px;
+    max-width: 350px;
+    background: var(--cyber-surface);
+    border: 2px solid var(--neon-green);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+    padding: 1rem 1.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    transition: right 0.3s;
+    z-index: 2000;
+}
+
+.notification.show {
+    right: 2rem;
+}
+
+.notification.success {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+}
+
+.notification.error {
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 20px rgba(255, 0, 110, 0.5);
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .main-nav {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .challenges-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .leaderboard-header,
+    .leaderboard-item {
+        grid-template-columns: 60px 1fr 80px 80px;
+        font-size: 0.7rem;
+    }
+}
+
+/* ==================== SCROLLBAR ==================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--cyber-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--cyber-border);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-green);
+    box-shadow: 0 0 10px var(--neon-green);
+}

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberLab - AI-Enhanced Hacking Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Audiowide:wght@400&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="cyber-bg">
+        <div class="grid-overlay"></div>
+        <div class="scan-line"></div>
+        <canvas id="matrix-bg"></canvas>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-bracket">[</span>
+                <span class="logo-text">CYBER<span class="accent">LAB</span></span>
+                <span class="logo-bracket">]</span>
+            </div>
+            
+            <nav class="main-nav" id="mainNav" style="display: none;">
+                <a href="#" class="nav-link active" data-section="dashboard">
+                    <span class="nav-icon">◉</span> Dashboard
+                </a>
+                <a href="#" class="nav-link" data-section="challenges">
+                    <span class="nav-icon">▣</span> Challenges
+                </a>
+                <a href="#" class="nav-link" data-section="leaderboard">
+                    <span class="nav-icon">▲</span> Leaderboard
+                </a>
+                <a href="#" class="nav-link" data-section="profile">
+                    <span class="nav-icon">◈</span> Profile
+                </a>
+            </nav>
+
+            <div class="auth-controls">
+                <div id="authButtons">
+                    <button class="cyber-btn" onclick="showAuth('login')">
+                        <span class="btn-glitch">ACCESS_SYSTEM</span>
+                    </button>
+                    <button class="cyber-btn secondary" onclick="showAuth('register')">
+                        <span class="btn-glitch">NEW_USER</span>
+                    </button>
+                </div>
+                <div id="userControls" style="display: none;">
+                    <span class="user-name" id="userName"></span>
+                    <button class="cyber-btn danger" onclick="logout()">
+                        <span class="btn-glitch">DISCONNECT</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        
+        <!-- Landing Section (Before Login) -->
+        <section id="landing" class="landing-section">
+            <div class="hero">
+                <h1 class="hero-title glitch" data-text="ENTER THE MATRIX">
+                    ENTER THE MATRIX
+                </h1>
+                <p class="hero-subtitle">
+                    AI-POWERED ETHICAL HACKING SIMULATOR
+                </p>
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">🤖</div>
+                        <div class="feature-text">Adaptive AI Hints</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🐳</div>
+                        <div class="feature-text">Docker Sandboxes</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🎮</div>
+                        <div class="feature-text">Gamified Learning</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-text">Real-Time Analytics</div>
+                    </div>
+                </div>
+                <button class="cyber-btn large pulse" onclick="showAuth('register')">
+                    <span class="btn-glitch">BEGIN_TRAINING</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">SYSTEM_DASHBOARD</h2>
+                <div class="terminal-prompt">root@cyberlab:~#<span class="cursor">_</span></div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card" data-stat="points">
+                    <div class="stat-header">
+                        <span class="stat-icon">⬣</span>
+                        <span class="stat-label">TOTAL_POINTS</span>
+                    </div>
+                    <div class="stat-value" id="totalPoints">0</div>
+                    <div class="stat-footer">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-stat="completed">
+                    <div class="stat-header">
+                        <span class="stat-icon">✓</span>
+                        <span class="stat-label">COMPLETED</span>
+                    </div>
+                    <div class="stat-value" id="completedCount">0</div>
+                    <div class="stat-footer">
+                        <span class="stat-meta">Challenges Solved</span>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-stat="progress">
+                    <div class="stat-header">
+                        <span class="stat-icon">↻</span>
+                        <span class="stat-label">IN_PROGRESS</span>
+                    </div>
+                    <div class="stat-value" id="inProgressCount">0</div>
+                    <div class="stat-footer">
+                        <span class="stat-meta">Active Missions</span>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-stat="level">
+                    <div class="stat-header">
+                        <span class="stat-icon">⬡</span>
+                        <span class="stat-label">SKILL_LEVEL</span>
+                    </div>
+                    <div class="stat-value" id="skillLevel">1</div>
+                    <div class="stat-footer">
+                        <span class="stat-meta">Access Clearance</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Containers -->
+            <div class="panel-container" id="activeContainersPanel" style="display: none;">
+                <div class="panel-header">
+                    <span class="panel-icon">🐳</span>
+                    <h3 class="panel-title">ACTIVE_CONTAINERS</h3>
+                </div>
+                <div class="panel-body" id="activeContainersList"></div>
+            </div>
+
+            <!-- Recent Achievements -->
+            <div class="panel-container" id="achievementsPanel" style="display: none;">
+                <div class="panel-header">
+                    <span class="panel-icon">🏆</span>
+                    <h3 class="panel-title">RECENT_ACHIEVEMENTS</h3>
+                </div>
+                <div class="panel-body">
+                    <div id="achievementsList" class="achievements-grid"></div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="action-btn" onclick="showSection('challenges')">
+                    <span class="action-icon">⚡</span>
+                    <span class="action-text">START_CHALLENGE</span>
+                </button>
+                <button class="action-btn" onclick="loadLearningPath()">
+                    <span class="action-icon">🧠</span>
+                    <span class="action-text">AI_LEARNING_PATH</span>
+                </button>
+                <button class="action-btn" onclick="showSection('leaderboard')">
+                    <span class="action-icon">📊</span>
+                    <span class="action-text">VIEW_RANKINGS</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Challenges Section -->
+        <section id="challenges" class="content-section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">CHALLENGE_MATRIX</h2>
+                <div class="challenge-filters">
+                    <select id="categoryFilter" class="cyber-select">
+                        <option value="all">ALL_CATEGORIES</option>
+                    </select>
+                    <select id="difficultyFilter" class="cyber-select">
+                        <option value="all">ALL_LEVELS</option>
+                        <option value="1">BEGINNER</option>
+                        <option value="2">INTERMEDIATE</option>
+                        <option value="3">ADVANCED</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="challengesGrid" class="challenges-grid"></div>
+        </section>
+
+        <!-- Leaderboard Section -->
+        <section id="leaderboard" class="content-section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">GLOBAL_RANKINGS</h2>
+            </div>
+
+            <div class="leaderboard-container">
+                <div class="leaderboard-header">
+                    <span class="rank-col">RANK</span>
+                    <span class="user-col">OPERATOR</span>
+                    <span class="points-col">POINTS</span>
+                    <span class="challenges-col">SOLVED</span>
+                </div>
+                <div id="leaderboardList" class="leaderboard-list"></div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="content-section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">USER_PROFILE</h2>
+            </div>
+
+            <div class="profile-grid">
+                <div class="profile-card">
+                    <h3>OPERATOR_INFO</h3>
+                    <div class="profile-data" id="profileData"></div>
+                </div>
+
+                <div class="profile-card">
+                    <h3>CATEGORY_BREAKDOWN</h3>
+                    <div id="categoryChart" class="category-chart"></div>
+                </div>
+
+                <div class="profile-card">
+                    <h3>PERFORMANCE_METRICS</h3>
+                    <div id="performanceMetrics" class="metrics-list"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content cyber-panel">
+            <button class="modal-close" onclick="closeAuth()">&times;</button>
+            <h2 class="modal-title" id="authTitle">SYSTEM_ACCESS</h2>
+            
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="form-group">
+                    <label class="form-label">USERNAME</label>
+                    <input type="text" id="authUsername" class="cyber-input" required autocomplete="username">
+                </div>
+
+                <div class="form-group" id="emailGroup" style="display: none;">
+                    <label class="form-label">EMAIL</label>
+                    <input type="email" id="authEmail" class="cyber-input" autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">PASSWORD</label>
+                    <input type="password" id="authPassword" class="cyber-input" required autocomplete="current-password">
+                </div>
+
+                <div id="authError" class="error-message" style="display: none;"></div>
+
+                <button type="submit" class="cyber-btn full-width">
+                    <span class="btn-glitch" id="authSubmitText">AUTHENTICATE</span>
+                </button>
+            </form>
+
+            <div class="auth-switch">
+                <span id="authSwitchText"></span>
+                <a href="#" id="authSwitchLink" class="cyber-link"></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Challenge Modal -->
+    <div id="challengeModal" class="modal">
+        <div class="modal-content cyber-panel large">
+            <button class="modal-close" onclick="closeChallengeModal()">&times;</button>
+            <div id="challengeDetails"></div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

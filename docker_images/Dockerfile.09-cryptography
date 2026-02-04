@@ -1,0 +1,57 @@
+FROM nginx:alpine
+
+# Create cryptography challenge page with both Caesar and Base64
+RUN echo '<!DOCTYPE html>' > /usr/share/nginx/html/index.html && \
+    echo '<html><head><title>Cryptography Challenges</title>' >> /usr/share/nginx/html/index.html && \
+    echo '<style>' >> /usr/share/nginx/html/index.html && \
+    echo 'body { background: #0a0e27; color: #00ff41; font-family: monospace; padding: 30px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'input { background: #1a1a2e; border: 1px solid #00ff41; color: #00ff41; padding: 10px; width: 400px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'button { background: #00ff41; color: #0a0e27; padding: 10px 20px; border: none; cursor: pointer; margin: 10px 0; }' >> /usr/share/nginx/html/index.html && \
+    echo '.challenge { border: 1px solid #00f5ff; padding: 20px; margin: 20px 0; }' >> /usr/share/nginx/html/index.html && \
+    echo '</style></head><body>' >> /usr/share/nginx/html/index.html && \
+    echo '<h1>🔐 CRYPTOGRAPHY LAB</h1>' >> /usr/share/nginx/html/index.html && \
+    echo '<div class="challenge">' >> /usr/share/nginx/html/index.html && \
+    echo '<h2>Challenge 1: Caesar Cipher</h2>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Encrypted message: <code>FWI{f4hv4u_f1sk3u}</code></p>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Shift: ???</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<input id="caesar" placeholder="Enter decrypted flag"><br>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="checkCaesar()">Check Caesar</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="caesarResult"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '</div>' >> /usr/share/nginx/html/index.html && \
+    echo '<div class="challenge">' >> /usr/share/nginx/html/index.html && \
+    echo '<h2>Challenge 2: Base64 Encoding</h2>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Triple-encoded message:</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<code>VTFSR2UwNVZiSE5TTUZaUVZGVmFlRGRXYkhkblEwRkdlMEkwY3pZMFgyUXpZekJrTVc1bnBRPT0=</code>' >> /usr/share/nginx/html/index.html && \
+    echo '<br><input id="base64" placeholder="Enter decoded flag"><br>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="checkBase64()">Check Base64</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="base64Result"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '</div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr><p style="color: #00f5ff; font-size: 12px;">💡 Hints:<br>' >> /usr/share/nginx/html/index.html && \
+    echo 'Caesar: Try all 26 possible shifts!<br>' >> /usr/share/nginx/html/index.html && \
+    echo 'Base64: Decode multiple times!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<script>' >> /usr/share/nginx/html/index.html && \
+    echo 'function checkCaesar() {' >> /usr/share/nginx/html/index.html && \
+    echo '  const input = document.getElementById("caesar").value;' >> /usr/share/nginx/html/index.html && \
+    echo '  if(input === "CTF{c4es4r_c1ph3r}") {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("caesarResult").innerHTML = "<p style=\"color: #00ff41;\">✅ Correct! The shift was 3.</p>";' >> /usr/share/nginx/html/index.html && \
+    echo '  } else {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("caesarResult").innerHTML = "<p style=\"color: #ff006e;\">❌ Incorrect. Keep trying!</p>";' >> /usr/share/nginx/html/index.html && \
+    echo '  }' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function checkBase64() {' >> /usr/share/nginx/html/index.html && \
+    echo '  const input = document.getElementById("base64").value;' >> /usr/share/nginx/html/index.html && \
+    echo '  if(input === "CTF{b4s364_d3c0d1ng}") {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("base64Result").innerHTML = "<p style=\"color: #00ff41;\">✅ Correct! You decoded it 3 times!</p>";' >> /usr/share/nginx/html/index.html && \
+    echo '  } else {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("base64Result").innerHTML = "<p style=\"color: #ff006e;\">❌ Incorrect. Decode more!</p>";' >> /usr/share/nginx/html/index.html && \
+    echo '  }' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '</script>' >> /usr/share/nginx/html/index.html && \
+    echo '</body></html>' >> /usr/share/nginx/html/index.html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build: docker build -t cyberlab/cryptography:v1 -f Dockerfile.09-cryptography .
+# Run: docker run -p 8009:80 cyberlab/cryptography:v1
