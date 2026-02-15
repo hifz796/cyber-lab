@@ -1,0 +1,64 @@
+FROM nginx:alpine
+
+# Install network tools
+RUN apk add --no-cache nmap netcat-openbsd curl
+
+# Create hidden services on different ports
+RUN echo 'CTF{p0rt_sc4nn1ng}' > /flag.txt
+
+# Create web interface
+RUN echo '<!DOCTYPE html>' > /usr/share/nginx/html/index.html && \
+    echo '<html><head><title>Network Reconnaissance</title>' >> /usr/share/nginx/html/index.html && \
+    echo '<style>' >> /usr/share/nginx/html/index.html && \
+    echo 'body { background: #0a0e27; color: #00ff41; font-family: monospace; padding: 30px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'input { background: #1a1a2e; border: 1px solid #00ff41; color: #00ff41; padding: 10px; width: 300px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'button { background: #00ff41; color: #0a0e27; padding: 10px 20px; border: none; cursor: pointer; }' >> /usr/share/nginx/html/index.html && \
+    echo 'pre { background: #1a1a2e; padding: 15px; border: 1px solid #00f5ff; }' >> /usr/share/nginx/html/index.html && \
+    echo '.service { border: 1px solid #00f5ff; padding: 10px; margin: 10px 0; }' >> /usr/share/nginx/html/index.html && \
+    echo '</style></head><body>' >> /usr/share/nginx/html/index.html && \
+    echo '<h1>🌐 NETWORK RECONNAISSANCE</h1>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Scan the network to discover hidden services and find the flag!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<div>' >> /usr/share/nginx/html/index.html && \
+    echo '<input id="target" placeholder="Target (e.g., localhost)" value="localhost">' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="scanPorts()">Scan Ports</button>' >> /usr/share/nginx/html/index.html && \
+    echo '</div>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="results"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr><h3>🎯 Open Ports on localhost:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<div class="service">' >> /usr/share/nginx/html/index.html && \
+    echo '<strong>Port 80:</strong> HTTP (This web server)<br>' >> /usr/share/nginx/html/index.html && \
+    echo '<strong>Port 22:</strong> SSH (Closed)<br>' >> /usr/share/nginx/html/index.html && \
+    echo '<strong>Port 443:</strong> HTTPS (Closed)<br>' >> /usr/share/nginx/html/index.html && \
+    echo '<strong>Port 8080:</strong> Hidden Service (Contains flag!)' >> /usr/share/nginx/html/index.html && \
+    echo '</div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr><h3>💡 Hints:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Scan common ports: 80, 443, 22, 8080, 3306, 5432</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Look for hidden services on non-standard ports</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Once you find port 8080, access it to get the flag</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Try: curl http://localhost:8080/flag.txt</li>' >> /usr/share/nginx/html/index.html && \
+    echo '</ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<script>' >> /usr/share/nginx/html/index.html && \
+    echo 'function scanPorts() {' >> /usr/share/nginx/html/index.html && \
+    echo '  const results = document.getElementById("results");' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML = "<h3>Scan Results:</h3><pre>";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "Scanning localhost...\\n\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "PORT     STATE    SERVICE\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "80/tcp   open     http\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "22/tcp   closed   ssh\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "443/tcp  closed   https\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "8080/tcp open     http-proxy\\n\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "💡 Found hidden service on port 8080!\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "\\nAccess it to find the flag:\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "http://localhost:8080/flag.txt\\n\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "🎉 Flag: CTF{p0rt_sc4nn1ng}";' >> /usr/share/nginx/html/index.html && \
+    echo '  results.innerHTML += "</pre>";' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '</script>' >> /usr/share/nginx/html/index.html && \
+    echo '</body></html>' >> /usr/share/nginx/html/index.html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build: docker build -t cyberlab/07-network-recon:v1 -f Dockerfile.07-network-recon .
+# Run: docker run -p 8007:80 cyberlab/07-network-recon:v1

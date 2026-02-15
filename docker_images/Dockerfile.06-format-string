@@ -1,0 +1,54 @@
+FROM nginx:alpine
+
+# Create format string challenge
+RUN echo '<!DOCTYPE html>' > /usr/share/nginx/html/index.html && \
+    echo '<html><head><title>Format String Challenge</title>' >> /usr/share/nginx/html/index.html && \
+    echo '<style>' >> /usr/share/nginx/html/index.html && \
+    echo 'body { background: #0a0e27; color: #00ff41; font-family: monospace; padding: 30px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'input { background: #1a1a2e; border: 1px solid #00ff41; color: #00ff41; padding: 10px; width: 400px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'button { background: #00ff41; color: #0a0e27; padding: 10px 20px; border: none; cursor: pointer; margin: 10px 0; }' >> /usr/share/nginx/html/index.html && \
+    echo 'pre { background: #1a1a2e; padding: 15px; border: 1px solid #00f5ff; }' >> /usr/share/nginx/html/index.html && \
+    echo '</style></head><body>' >> /usr/share/nginx/html/index.html && \
+    echo '<h1>🔍 FORMAT STRING CHALLENGE</h1>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>The application uses user input directly in printf(). Exploit this!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<input id="input" placeholder="Enter format string (e.g., %x %x %x)">' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="submitInput()">Submit</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="output"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr><h3>💡 Hints:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Try: %x to read stack values</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Try: %s to read strings from memory</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Try: %p to read pointers</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Chain them: %x %x %x %x %s</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Flag is hidden in memory as a string</li>' >> /usr/share/nginx/html/index.html && \
+    echo '</ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<script>' >> /usr/share/nginx/html/index.html && \
+    echo 'const FLAG = "CTF{f0rm4t_str1ng_pwn}";' >> /usr/share/nginx/html/index.html && \
+    echo 'const SECRET = "SECRET_DATA_12345";' >> /usr/share/nginx/html/index.html && \
+    echo 'function submitInput() {' >> /usr/share/nginx/html/index.html && \
+    echo '  const input = document.getElementById("input").value;' >> /usr/share/nginx/html/index.html && \
+    echo '  let output = "<h3>Output:</h3><pre>";' >> /usr/share/nginx/html/index.html && \
+    echo '  if (input.includes("%s") || input.includes("%p") || input.includes("%x")) {' >> /usr/share/nginx/html/index.html && \
+    echo '    if (input.split("%").length > 4) {' >> /usr/share/nginx/html/index.html && \
+    echo '      output += "Memory dump:\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '      output += "0x7ffd1234\\n0x401000\\n0x7f8b5678\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '      output += SECRET + "\\n";' >> /usr/share/nginx/html/index.html && \
+    echo '      output += "🎉 Flag found: " + FLAG;' >> /usr/share/nginx/html/index.html && \
+    echo '    } else {' >> /usr/share/nginx/html/index.html && \
+    echo '      output += "Partial memory read:\\n0x7ffd1234\\n0x401000";' >> /usr/share/nginx/html/index.html && \
+    echo '    }' >> /usr/share/nginx/html/index.html && \
+    echo '  } else {' >> /usr/share/nginx/html/index.html && \
+    echo '    output += "Normal output: " + input;' >> /usr/share/nginx/html/index.html && \
+    echo '  }' >> /usr/share/nginx/html/index.html && \
+    echo '  output += "</pre>";' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = output;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '</script>' >> /usr/share/nginx/html/index.html && \
+    echo '</body></html>' >> /usr/share/nginx/html/index.html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build: docker build -t cyberlab/06-format-string:v1 -f Dockerfile.06-format-string .
+# Run: docker run -p 8006:80 cyberlab/06-format-string:v1

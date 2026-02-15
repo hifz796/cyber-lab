@@ -22,8 +22,17 @@ def update_docker_images():
         2: 'cyberlab/02-xss-attack:v1',
         3: 'cyberlab/03-command-injection:v1',
         4: 'cyberlab/04-directory-traversal:v1',
+        5: 'cyberlab/05-buffer-overflow:v1',
+        6: 'cyberlab/06-format-string:v1',
+        7: 'cyberlab/07-network-recon:v1',
+        8: 'cyberlab/08-packet-analysis:v1',
         9: 'cyberlab/09-cryptography:v1',   # Caesar Cipher
         10: 'cyberlab/09-cryptography:v1',  # Base64 (same container)
+        11: 'cyberlab/11-privilege-escalation:v1',
+        12: 'cyberlab/12-password-cracking:v1',
+        13: 'cyberlab/13-reverse-engineering:v1',
+        14: 'cyberlab/14-osint:v1',
+        15: 'cyberlab/15-forensics:v1',
     }
     
     print("Updating challenges with Docker images...")

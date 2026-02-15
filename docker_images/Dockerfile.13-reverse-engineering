@@ -1,0 +1,115 @@
+FROM nginx:alpine
+
+# Create reverse engineering challenge
+RUN echo '<!DOCTYPE html>' > /usr/share/nginx/html/index.html && \
+    echo '<html><head><title>Reverse Engineering</title>' >> /usr/share/nginx/html/index.html && \
+    echo '<style>' >> /usr/share/nginx/html/index.html && \
+    echo 'body { background: #0a0e27; color: #00ff41; font-family: monospace; padding: 30px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'input { background: #1a1a2e; border: 1px solid #00ff41; color: #00ff41; padding: 10px; width: 300px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'button { background: #00ff41; color: #0a0e27; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'pre { background: #1a1a2e; padding: 15px; border: 1px solid #00f5ff; overflow-x: auto; font-size: 11px; }' >> /usr/share/nginx/html/index.html && \
+    echo '.code { color: #00f5ff; }' >> /usr/share/nginx/html/index.html && \
+    echo '</style></head><body>' >> /usr/share/nginx/html/index.html && \
+    echo '<h1>🔍 REVERSE ENGINEERING CHALLENGE</h1>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Analyze the obfuscated JavaScript to find the validation function!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<h3>Target Program (Obfuscated):</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<pre class="code" id="obfuscatedCode"></pre>' >> /usr/share/nginx/html/index.html && \
+    echo '<div>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="showDeobfuscated()">De-obfuscate Code</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="analyzeFunction()">Analyze Function</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="findFlag()">Find Flag</button>' >> /usr/share/nginx/html/index.html && \
+    echo '</div>' >> /usr/share/nginx/html/index.html && \
+    echo '<div>' >> /usr/share/nginx/html/index.html && \
+    echo '<input id="password" placeholder="Enter the secret password">' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="validatePassword()">Validate</button>' >> /usr/share/nginx/html/index.html && \
+    echo '</div>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="output"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr><h3>💡 Hints:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>The code is obfuscated using variable name mangling</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Look for string comparisons and validation logic</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>The password is hardcoded in the validation function</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Use browser dev tools to debug and step through</li>' >> /usr/share/nginx/html/index.html && \
+    echo '</ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<script>' >> /usr/share/nginx/html/index.html && \
+    echo 'const _0x1a2b = ["reverse", "engineer", "this", "CTF{r3v3rs3_3ng1n33r}"];' >> /usr/share/nginx/html/index.html && \
+    echo 'const SECRET = "h4ck3r";' >> /usr/share/nginx/html/index.html && \
+    echo 'function _0xa1b2(_0xc3d4) {' >> /usr/share/nginx/html/index.html && \
+    echo '  return _0xc3d4 === SECRET;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'const obfuscated = `' >> /usr/share/nginx/html/index.html && \
+    echo 'function _0xa1b2(_0xc3d4){return _0xc3d4==="h4ck3r"}' >> /usr/share/nginx/html/index.html && \
+    echo 'function _0xe5f6(){if(_0xa1b2(_0xg7h8)){return _0x1a2b[3]}}' >> /usr/share/nginx/html/index.html && \
+    echo 'const _0xi9j0="CTF{r3v3rs3_3ng1n33r}"' >> /usr/share/nginx/html/index.html && \
+    echo '`;' >> /usr/share/nginx/html/index.html && \
+    echo 'document.getElementById("obfuscatedCode").textContent = obfuscated;' >> /usr/share/nginx/html/index.html && \
+    echo 'function showDeobfuscated() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>De-obfuscated Code:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre class="code">' >> /usr/share/nginx/html/index.html && \
+    echo 'function validate(password) {' >> /usr/share/nginx/html/index.html && \
+    echo '  return password === "h4ck3r";  // Hardcoded password!' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'function getFlag() {' >> /usr/share/nginx/html/index.html && \
+    echo '  if (validate(input)) {' >> /usr/share/nginx/html/index.html && \
+    echo '    return FLAG;' >> /usr/share/nginx/html/index.html && \
+    echo '  }' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'const FLAG = "CTF{r3v3rs3_3ng1n33r}";' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function analyzeFunction() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>Function Analysis:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Validation function found:' >> /usr/share/nginx/html/index.html && \
+    echo '- Compares input against hardcoded string' >> /usr/share/nginx/html/index.html && \
+    echo '- Expected password: "h4ck3r"' >> /usr/share/nginx/html/index.html && \
+    echo '- Returns flag if password matches' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function findFlag() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <h3>Flag Location:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '    <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Flag found in source code:' >> /usr/share/nginx/html/index.html && \
+    echo 'const _0xi9j0 = "CTF{r3v3rs3_3ng1n33r}"' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'But you need the correct password to validate!' >> /usr/share/nginx/html/index.html && \
+    echo 'Password hint: Look at the validation function' >> /usr/share/nginx/html/index.html && \
+    echo '    </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function validatePassword() {' >> /usr/share/nginx/html/index.html && \
+    echo '  const input = document.getElementById("password").value;' >> /usr/share/nginx/html/index.html && \
+    echo '  if (_0xa1b2(input)) {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '      <h3 style="color: #00ff41;">✅ Password Correct!</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '      <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Password: ${input}' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo '🎉 Flag: ${_0x1a2b[3]}' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Congratulations on reverse engineering the code!' >> /usr/share/nginx/html/index.html && \
+    echo '      </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    `;' >> /usr/share/nginx/html/index.html && \
+    echo '  } else {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '      <h3 style="color: #ff006e;">❌ Wrong Password</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '      <p>Analyze the code more carefully!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '    `;' >> /usr/share/nginx/html/index.html && \
+    echo '  }' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '</script>' >> /usr/share/nginx/html/index.html && \
+    echo '</body></html>' >> /usr/share/nginx/html/index.html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build: docker build -t cyberlab/13-reverse-engineering:v1 -f Dockerfile.13-reverse-engineering .
+# Run: docker run -p 8013:80 cyberlab/13-reverse-engineering:v1

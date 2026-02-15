@@ -1,0 +1,128 @@
+FROM nginx:alpine
+
+# Create OSINT challenge
+RUN echo '<!DOCTYPE html>' > /usr/share/nginx/html/index.html && \
+    echo '<html><head><title>OSINT Challenge</title>' >> /usr/share/nginx/html/index.html && \
+    echo '<style>' >> /usr/share/nginx/html/index.html && \
+    echo 'body { background: #0a0e27; color: #00ff41; font-family: monospace; padding: 30px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'input { background: #1a1a2e; border: 1px solid #00ff41; color: #00ff41; padding: 10px; width: 400px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'button { background: #00ff41; color: #0a0e27; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; }' >> /usr/share/nginx/html/index.html && \
+    echo 'pre { background: #1a1a2e; padding: 15px; border: 1px solid #00f5ff; }' >> /usr/share/nginx/html/index.html && \
+    echo '.clue { border-left: 3px solid #00f5ff; padding-left: 15px; margin: 10px 0; }' >> /usr/share/nginx/html/index.html && \
+    echo 'img { max-width: 400px; border: 2px solid #00ff41; }' >> /usr/share/nginx/html/index.html && \
+    echo '</style></head><body>' >> /usr/share/nginx/html/index.html && \
+    echo '<h1>🔎 OSINT CHALLENGE</h1>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Use Open Source Intelligence techniques to find the hidden flag!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<h3>📋 Mission Brief:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<div class="clue">' >> /usr/share/nginx/html/index.html && \
+    echo '<p>A mysterious user "@CyberGhost2026" has been posting cryptic messages.</p>' >> /usr/share/nginx/html/index.html && \
+    echo '<p>Your task: Find their real identity and location to unlock the flag.</p>' >> /usr/share/nginx/html/index.html && \
+    echo '</div>' >> /usr/share/nginx/html/index.html && \
+    echo '<h3>🔍 Available Clues:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="showClue1()">Clue 1: Social Media</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="showClue2()">Clue 2: Location Hint</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="showClue3()">Clue 3: Username Pattern</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="showClue4()">Clue 4: Final Hint</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="clues"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr>' >> /usr/share/nginx/html/index.html && \
+    echo '<h3>📍 Submit Your Findings:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<input id="city" placeholder="City where CyberGhost lives">' >> /usr/share/nginx/html/index.html && \
+    echo '<button onclick="checkAnswer()">Submit</button>' >> /usr/share/nginx/html/index.html && \
+    echo '<div id="output"></div>' >> /usr/share/nginx/html/index.html && \
+    echo '<hr><h3>💡 OSINT Techniques:</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '<ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Username search across platforms</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Reverse image search (Google, TinEye)</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Metadata analysis (EXIF data)</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Geolocation from photos</li>' >> /usr/share/nginx/html/index.html && \
+    echo '<li>Timeline correlation</li>' >> /usr/share/nginx/html/index.html && \
+    echo '</ul>' >> /usr/share/nginx/html/index.html && \
+    echo '<script>' >> /usr/share/nginx/html/index.html && \
+    echo 'function showClue1() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("clues").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <div class="clue">' >> /usr/share/nginx/html/index.html && \
+    echo '      <h4>Clue 1: Social Media Post</h4>' >> /usr/share/nginx/html/index.html && \
+    echo '      <pre>' >> /usr/share/nginx/html/index.html && \
+    echo '@CyberGhost2026: "Just grabbed coffee at my favorite spot!' >> /usr/share/nginx/html/index.html && \
+    echo 'The view of the Golden Gate is amazing today! ☕🌉"' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Posted: 2 days ago' >> /usr/share/nginx/html/index.html && \
+    echo 'Location Services: Disabled' >> /usr/share/nginx/html/index.html && \
+    echo '      </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    </div>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function showClue2() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("clues").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <div class="clue">' >> /usr/share/nginx/html/index.html && \
+    echo '      <h4>Clue 2: Photo Metadata</h4>' >> /usr/share/nginx/html/index.html && \
+    echo '      <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Image: morning_coffee.jpg' >> /usr/share/nginx/html/index.html && \
+    echo 'Camera: iPhone 13' >> /usr/share/nginx/html/index.html && \
+    echo 'Date: Feb 13, 2026 08:23 AM' >> /usr/share/nginx/html/index.html && \
+    echo 'GPS Coordinates: 37.7749° N, 122.4194° W' >> /usr/share/nginx/html/index.html && \
+    echo '      </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '      <p>💡 Use Google Maps to lookup these coordinates!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '    </div>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function showClue3() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("clues").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <div class="clue">' >> /usr/share/nginx/html/index.html && \
+    echo '      <h4>Clue 3: Username Search Results</h4>' >> /usr/share/nginx/html/index.html && \
+    echo '      <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Found @CyberGhost2026 on:' >> /usr/share/nginx/html/index.html && \
+    echo '- Twitter (suspended)' >> /usr/share/nginx/html/index.html && \
+    echo '- Reddit (deleted)' >> /usr/share/nginx/html/index.html && \
+    echo '- GitHub: Last commit mentions "SF startup life"' >> /usr/share/nginx/html/index.html && \
+    echo '- LinkedIn: Tech worker in Bay Area' >> /usr/share/nginx/html/index.html && \
+    echo '      </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    </div>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function showClue4() {' >> /usr/share/nginx/html/index.html && \
+    echo '  document.getElementById("clues").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '    <div class="clue">' >> /usr/share/nginx/html/index.html && \
+    echo '      <h4>Clue 4: Final Correlation</h4>' >> /usr/share/nginx/html/index.html && \
+    echo '      <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'All clues point to:' >> /usr/share/nginx/html/index.html && \
+    echo '✓ Golden Gate Bridge visible' >> /usr/share/nginx/html/index.html && \
+    echo '✓ GPS coordinates in California' >> /usr/share/nginx/html/index.html && \
+    echo '✓ Bay Area tech worker' >> /usr/share/nginx/html/index.html && \
+    echo '✓ "SF startup life" mention' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'What city matches all these clues?' >> /usr/share/nginx/html/index.html && \
+    echo '      </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    </div>' >> /usr/share/nginx/html/index.html && \
+    echo '  `;' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo 'function checkAnswer() {' >> /usr/share/nginx/html/index.html && \
+    echo '  const input = document.getElementById("city").value.toLowerCase();' >> /usr/share/nginx/html/index.html && \
+    echo '  if (input.includes("san francisco") || input === "sf" || input.includes("francisco")) {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '      <h3 style="color: #00ff41;">✅ Correct!</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '      <pre>' >> /usr/share/nginx/html/index.html && \
+    echo 'Location: San Francisco, California' >> /usr/share/nginx/html/index.html && \
+    echo 'Evidence: GPS coordinates, Golden Gate mention, tech startup culture' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo '🎉 Flag: CTF{0s1nt_m4st3r}' >> /usr/share/nginx/html/index.html && \
+    echo '' >> /usr/share/nginx/html/index.html && \
+    echo 'Great work using OSINT techniques!' >> /usr/share/nginx/html/index.html && \
+    echo '      </pre>' >> /usr/share/nginx/html/index.html && \
+    echo '    `;' >> /usr/share/nginx/html/index.html && \
+    echo '  } else {' >> /usr/share/nginx/html/index.html && \
+    echo '    document.getElementById("output").innerHTML = `' >> /usr/share/nginx/html/index.html && \
+    echo '      <h3 style="color: #ff006e;">❌ Wrong City</h3>' >> /usr/share/nginx/html/index.html && \
+    echo '      <p>Review all the clues carefully!</p>' >> /usr/share/nginx/html/index.html && \
+    echo '    `;' >> /usr/share/nginx/html/index.html && \
+    echo '  }' >> /usr/share/nginx/html/index.html && \
+    echo '}' >> /usr/share/nginx/html/index.html && \
+    echo '</script>' >> /usr/share/nginx/html/index.html && \
+    echo '</body></html>' >> /usr/share/nginx/html/index.html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build: docker build -t cyberlab/14-osint:v1 -f Dockerfile.14-osint .
+# Run: docker run -p 8014:80 cyberlab/14-osint:v1

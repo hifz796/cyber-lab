@@ -90,7 +90,7 @@ python database.py
 python app.py
 ```
 
-### Method 3: Docker (Coming Soon)
+### Method 3: Docker 
 ```bash
 docker-compose up
 ```
@@ -101,7 +101,7 @@ Default login: `admin` / `admin123`
 
 ---
 
-## 🎯 What Works Right Now
+## 🎯 What Works 
 
 ### ✅ Without Any Setup
 - User registration & login

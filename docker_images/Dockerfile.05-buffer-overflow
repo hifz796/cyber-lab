@@ -1,0 +1,96 @@
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install dependencies including nginx
+RUN apt-get update && \
+    apt-get install -y gcc make socat nginx && \
+    apt-get clean
+
+# Create vulnerable C program
+RUN cat > /challenge.c << 'CEOF'
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+void win() {
+    printf("\n🎉 Buffer Overflow Successful!\n");
+    printf("Flag: CTF{buff3r_0v3rfl0w}\n\n");
+    exit(0);
+}
+
+void vulnerable_function() {
+    char buffer[64];
+    printf("\n=== BUFFER OVERFLOW CHALLENGE ===\n");
+    printf("Enter your input: ");
+    gets(buffer);
+    printf("You entered: %s\n", buffer);
+}
+
+int main() {
+    printf("\n💡 Hint: Buffer is 64 bytes. Can you overwrite the return address?\n");
+    printf("💡 The win() function is at address: %p\n\n", win);
+    vulnerable_function();
+    printf("\n❌ Normal execution completed.\n");
+    return 0;
+}
+CEOF
+
+# Compile with protections disabled
+RUN gcc -o /challenge /challenge.c -fno-stack-protector -z execstack -no-pie 2>/dev/null || \
+    gcc -o /challenge /challenge.c -fno-stack-protector -z execstack -no-pie -Wno-implicit-function-declaration
+
+# Create web interface using cat heredoc
+RUN cat > /var/www/html/index.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buffer Overflow Challenge</title>
+    <style>
+        body { background: #0a0e27; color: #00ff41; font-family: monospace; padding: 30px; }
+        pre { background: #1a1a2e; padding: 20px; border: 1px solid #00ff41; overflow-x: auto; }
+        input, button { background: #1a1a2e; border: 1px solid #00ff41; color: #00ff41; padding: 10px; margin: 5px; }
+        button { cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔓 BUFFER OVERFLOW CHALLENGE</h1>
+    <p>Overflow the buffer to execute the win() function!</p>
+    <pre id="output">Run the challenge to see output...</pre>
+    <input id="input" placeholder="Enter payload (e.g., AAAA...)" style="width: 500px;">
+    <button onclick="runChallenge()">Execute</button>
+    <hr>
+    <h3>💡 Hints:</h3>
+    <ul>
+        <li>Buffer size: 64 bytes</li>
+        <li>Try sending more than 64 characters</li>
+        <li>Pattern: AAAABBBBCCCCDDDD... until you overwrite return address</li>
+        <li>Need ~76-80 bytes to overflow</li>
+    </ul>
+    <script>
+        function runChallenge() {
+            const input = document.getElementById("input").value;
+            if (input.length > 76) {
+                document.getElementById("output").textContent = 
+                    "🎉 Buffer Overflow Successful!\nFlag: CTF{buff3r_0v3rfl0w}\n\nYou overflowed the buffer with " + 
+                    input.length + " bytes!";
+            } else {
+                document.getElementById("output").textContent = 
+                    "❌ Buffer not overflowed.\nYou sent: " + input.length + 
+                    " bytes\nNeed: 76+ bytes\n\nTry: " + "A".repeat(80);
+            }
+        }
+    </script>
+</body>
+</html>
+HTMLEOF
+
+# Remove default nginx page
+RUN rm -f /var/www/html/index.nginx-debian.html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Build: docker build -t cyberlab/05-buffer-overflow:v1 -f Dockerfile.05-buffer-overflow .
+# Run: docker run -p 8005:80 cyberlab/05-buffer-overflow:v1
