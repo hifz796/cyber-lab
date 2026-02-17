@@ -254,7 +254,7 @@ def get_challenge(challenge_id):
 @app.route('/api/challenge/<int:challenge_id>/start', methods=['POST'])
 @login_required
 def start_challenge(challenge_id):
-    """Start a challenge and automatically launch container if available"""
+    """Start a challenge and automatically launch SHARED container if available"""
     conn = get_db(db_path)
     c = conn.cursor()
     
@@ -288,27 +288,33 @@ def start_challenge(challenge_id):
     
     conn.commit()
     
-    # AUTOMATICALLY start Docker container if challenge has one
+    # AUTOMATICALLY start/connect to SHARED Docker container
     result = {'success': True, 'message': 'Challenge started', 'auto_deployed': False}
     
     if challenge['docker_image']:
-        # Check if container already running
-        c.execute('''SELECT * FROM active_containers 
+        # Check if user already has a session for this challenge
+        c.execute('''SELECT * FROM user_sessions 
                     WHERE user_id = ? AND challenge_id = ?''',
                  (session['user_id'], challenge_id))
-        existing_container = c.fetchone()
+        existing_session = c.fetchone()
         
-        if existing_container:
-            # Container already running
-            result['container'] = {
-                'host': existing_container['host'],
-                'port': existing_container['port'],
-                'url': f"http://{existing_container['host']}:{existing_container['port']}"
-            }
-            result['container_available'] = True
-            result['message'] = 'Container already running'
+        if existing_session:
+            # User already has a session, return existing info
+            c.execute('''SELECT * FROM active_containers WHERE challenge_id = ?''',
+                     (challenge_id,))
+            container_info = c.fetchone()
+            
+            if container_info:
+                result['container'] = {
+                    'host': container_info['host'],
+                    'port': container_info['port'],
+                    'session_id': existing_session['session_id'],
+                    'url': f"http://{container_info['host']}:{container_info['port']}?session={existing_session['session_id']}"
+                }
+                result['container_available'] = True
+                result['message'] = 'Reconnected to existing session'
         else:
-            # Start new container automatically
+            # Start or connect to shared container
             container_result = docker_manager.start_container(
                 session['user_id'], 
                 challenge_id,
@@ -319,26 +325,51 @@ def start_challenge(challenge_id):
                 result['warning'] = container_result['error']
                 result['container_available'] = False
             else:
-                # Save container info
-                c.execute('''INSERT OR REPLACE INTO active_containers 
-                            (user_id, challenge_id, container_id, host, port, started_at, expires_at)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                         (session['user_id'], challenge_id, 
+                # Check if container entry exists in active_containers
+                c.execute('''SELECT * FROM active_containers WHERE challenge_id = ?''',
+                         (challenge_id,))
+                existing_container = c.fetchone()
+                
+                if not existing_container:
+                    # Create new container entry (first user)
+                    c.execute('''INSERT INTO active_containers 
+                                (challenge_id, container_id, host, port, started_at, last_accessed)
+                                VALUES (?, ?, ?, ?, ?, ?)''',
+                             (challenge_id,
+                              container_result['container_id'],
+                              container_result['host'],
+                              container_result['port'],
+                              datetime.now().isoformat(),
+                              datetime.now().isoformat()))
+                else:
+                    # Update last accessed time
+                    c.execute('''UPDATE active_containers 
+                                SET last_accessed = ? 
+                                WHERE challenge_id = ?''',
+                             (datetime.now().isoformat(), challenge_id))
+                
+                # Create user session entry
+                c.execute('''INSERT OR REPLACE INTO user_sessions 
+                            (user_id, challenge_id, session_id, container_id, started_at, last_accessed)
+                            VALUES (?, ?, ?, ?, ?, ?)''',
+                         (session['user_id'], challenge_id,
+                          container_result['session_id'],
                           container_result['container_id'],
-                          container_result['host'],
-                          container_result['port'],
                           datetime.now().isoformat(),
-                          (datetime.now() + timedelta(hours=2)).isoformat()))
+                          datetime.now().isoformat()))
+                
                 conn.commit()
                 
                 result['container'] = {
                     'host': container_result['host'],
                     'port': container_result['port'],
-                    'url': f"http://{container_result['host']}:{container_result['port']}"
+                    'session_id': container_result['session_id'],
+                    'url': container_result['url'],
+                    'shared': container_result.get('shared', False)
                 }
                 result['container_available'] = True
                 result['auto_deployed'] = True
-                result['message'] = 'Container deployed automatically'
+                result['message'] = 'Connected to shared container'
     
     conn.close()
     return jsonify(result)
@@ -508,19 +539,40 @@ def get_hint(challenge_id):
 @app.route('/api/challenge/<int:challenge_id>/container/stop', methods=['POST'])
 @login_required
 def stop_container(challenge_id):
-    """Stop a running container"""
-    result = docker_manager.stop_container(session['user_id'], challenge_id)
+    """End user's session (container stays running for others)"""
+    conn = get_db(db_path)
+    c = conn.cursor()
     
-    if 'error' not in result:
-        conn = get_db(db_path)
-        c = conn.cursor()
-        c.execute('''DELETE FROM active_containers 
-                    WHERE user_id = ? AND challenge_id = ?''',
-                 (session['user_id'], challenge_id))
-        conn.commit()
-        conn.close()
+    # Delete user's session
+    c.execute('''DELETE FROM user_sessions 
+                WHERE user_id = ? AND challenge_id = ?''',
+             (session['user_id'], challenge_id))
     
-    return jsonify(result)
+    # Check if any other users are using this container
+    c.execute('''SELECT COUNT(*) as count FROM user_sessions 
+                WHERE challenge_id = ?''', (challenge_id,))
+    other_users = c.fetchone()['count']
+    
+    if other_users == 0:
+        # No other users, safe to stop the container
+        c.execute('''DELETE FROM active_containers WHERE challenge_id = ?''',
+                 (challenge_id,))
+        result = docker_manager.stop_container_admin(challenge_id)
+        message = 'Container stopped (last user)'
+    else:
+        # Other users still connected
+        result = docker_manager.stop_container(session['user_id'], challenge_id)
+        message = f'Session ended ({other_users} other user(s) still connected)'
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({
+        'success': True,
+        'message': message,
+        'other_users': other_users
+    })
+
 
 # ==================== USER STATS API ====================
 
@@ -563,11 +615,12 @@ def get_stats():
                 ORDER BY ua.earned_at DESC LIMIT 5''', (session['user_id'],))
     achievements = [dict(row) for row in c.fetchall()]
     
-    # Active containers
-    c.execute('''SELECT ac.*, c.name as challenge_name
-                FROM active_containers ac
-                JOIN challenges c ON ac.challenge_id = c.id
-                WHERE ac.user_id = ?''', (session['user_id'],))
+    # Active sessions for this user
+    c.execute('''SELECT us.*, ac.host, ac.port, c.name as challenge_name
+                FROM user_sessions us
+                JOIN active_containers ac ON us.challenge_id = ac.challenge_id
+                JOIN challenges c ON us.challenge_id = c.id
+                WHERE us.user_id = ?''', (session['user_id'],))
     containers = [dict(row) for row in c.fetchall()]
     
     conn.close()
@@ -641,17 +694,32 @@ def learning_path():
 @app.route('/api/admin/containers')
 @admin_required
 def admin_containers():
-    """Get all active containers (admin only)"""
+    """Get all active shared containers with user counts (admin only)"""
     conn = get_db(db_path)
     c = conn.cursor()
     
-    c.execute('''SELECT ac.*, u.username, c.name as challenge_name
+    # Get all active containers with user session counts
+    c.execute('''SELECT 
+                    ac.*,
+                    c.name as challenge_name,
+                    COUNT(us.id) as active_users
                 FROM active_containers ac
-                JOIN users u ON ac.user_id = u.id
                 JOIN challenges c ON ac.challenge_id = c.id
+                LEFT JOIN user_sessions us ON ac.challenge_id = us.challenge_id
+                GROUP BY ac.id
                 ORDER BY ac.started_at DESC''')
     
     containers = [dict(row) for row in c.fetchall()]
+    
+    # Get detailed user list for each container
+    for container in containers:
+        c.execute('''SELECT u.username, us.started_at, us.last_accessed
+                    FROM user_sessions us
+                    JOIN users u ON us.user_id = u.id
+                    WHERE us.challenge_id = ?
+                    ORDER BY us.started_at DESC''', (container['challenge_id'],))
+        container['users'] = [dict(row) for row in c.fetchall()]
+    
     conn.close()
     
     return jsonify({
@@ -679,24 +747,30 @@ def admin_users():
         'users': users
     })
 
-@app.route('/api/admin/container/<container_id>/stop', methods=['POST'])
+@app.route('/api/admin/container/<int:challenge_id>/stop', methods=['POST'])
 @admin_required
-def admin_stop_container(container_id):
-    """Stop any container (admin only)"""
+def admin_stop_container(challenge_id):
+    """Stop shared container for a challenge (admin only)"""
     conn = get_db(db_path)
     c = conn.cursor()
     
-    c.execute('SELECT * FROM active_containers WHERE container_id = ?', (container_id,))
+    # Get container info
+    c.execute('SELECT * FROM active_containers WHERE challenge_id = ?', (challenge_id,))
     container = c.fetchone()
     
     if not container:
         conn.close()
         return jsonify({'error': 'Container not found'}), 404
     
-    result = docker_manager.stop_container_by_id(container_id)
+    # Stop the container
+    result = docker_manager.stop_container_admin(challenge_id)
     
     if 'error' not in result:
-        c.execute('DELETE FROM active_containers WHERE container_id = ?', (container_id,))
+        # Delete all user sessions for this container
+        c.execute('DELETE FROM user_sessions WHERE challenge_id = ?', (challenge_id,))
+        
+        # Delete container record
+        c.execute('DELETE FROM active_containers WHERE challenge_id = ?', (challenge_id,))
         conn.commit()
     
     conn.close()

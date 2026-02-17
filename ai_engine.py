@@ -5,6 +5,8 @@ AI Engine - DeepSeek Integration for Adaptive Learning
 import os
 import json
 import requests
+from dotenv import load_dotenv
+load_dotenv()  # ← This line MUST exist to read .env files
 
 class AIEngine:
     """AI-powered adaptive learning engine using DeepSeek"""

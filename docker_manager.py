@@ -27,42 +27,92 @@ class DockerManager:
             print("   Running in MOCK MODE - containers will be simulated")
     
     def start_container(self, user_id, challenge_id, image_name):
-        """Start a Docker container for a challenge"""
+        """Start or connect to a SHARED container for a challenge"""
         
         if self.mock_mode:
             return self._mock_start_container(user_id, challenge_id, image_name)
         
         try:
-            # Generate unique container name
-            container_name = f"cyberlab_user{user_id}_chal{challenge_id}_{secrets.token_hex(4)}"
+            # Container name based on CHALLENGE only (not user!)
+            container_name = f"cyberlab_challenge_{challenge_id}"
             
-            # Random port between 30000-40000
-            host_port = random.randint(30000, 40000)
-            
-            # Start container
-            container = self.client.containers.run(
-                image_name,
-                name=container_name,
-                detach=True,
-                remove=True,  # Auto-remove when stopped
-                ports={'80/tcp': host_port},  # Map container port 80 to random host port
-                mem_limit='256m',  # Memory limit
-                cpu_quota=50000,  # CPU limit (50%)
-                network_mode='bridge'
-            )
-            
-            # Get container info
-            container.reload()
-            
-            return {
-                'success': True,
-                'container_id': container.id,
-                'container_name': container_name,
-                'host': 'localhost',
-                'port': host_port,
-                'url': f'http://localhost:{host_port}',
-                'expires_at': (datetime.now() + timedelta(hours=2)).isoformat()
-            }
+            # Check if container already exists for this challenge
+            try:
+                container = self.client.containers.get(container_name)
+                
+                # Container exists! Reuse it
+                container.reload()
+                port = container.ports.get('80/tcp', [{}])[0].get('HostPort', '')
+                
+                if not port:
+                    # Container exists but port not mapped, remove and recreate
+                    container.stop()
+                    container.remove()
+                    raise docker.errors.NotFound("Port not mapped")
+                
+                # Generate unique session ID for this user
+                session_id = secrets.token_hex(16)
+                
+                print(f"✅ Reusing existing container for challenge {challenge_id}")
+                print(f"   Container: {container.id[:12]}")
+                print(f"   Port: {port}")
+                print(f"   Session: {session_id}")
+                
+                return {
+                    'success': True,
+                    'container_id': container.id,
+                    'container_name': container_name,
+                    'host': 'localhost',
+                    'port': port,
+                    'session_id': session_id,
+                    'url': f'http://localhost:{port}?session={session_id}',
+                    'shared': True,
+                    'expires_at': (datetime.now() + timedelta(hours=24)).isoformat()
+                }
+                
+            except docker.errors.NotFound:
+                # Container doesn't exist, create new one
+                print(f"🆕 Creating new shared container for challenge {challenge_id}")
+                
+                # Random port between 30000-40000
+                host_port = random.randint(30000, 40000)
+                
+                # Start new shared container
+                container = self.client.containers.run(
+                    image_name,
+                    name=container_name,
+                    detach=True,
+                    remove=True,  # Auto-remove when stopped
+                    ports={'80/tcp': host_port},
+                    mem_limit='256m',
+                    cpu_quota=50000,
+                    network_mode='bridge',
+                    labels={
+                        'cyberlab.challenge_id': str(challenge_id),
+                        'cyberlab.type': 'shared'
+                    }
+                )
+                
+                # Get container info
+                container.reload()
+                session_id = secrets.token_hex(16)
+                
+                print(f"✅ Container created successfully")
+                print(f"   Container: {container.id[:12]}")
+                print(f"   Port: {host_port}")
+                print(f"   Session: {session_id}")
+                
+                return {
+                    'success': True,
+                    'container_id': container.id,
+                    'container_name': container_name,
+                    'host': 'localhost',
+                    'port': host_port,
+                    'session_id': session_id,
+                    'url': f'http://localhost:{host_port}?session={session_id}',
+                    'shared': True,
+                    'expires_at': (datetime.now() + timedelta(hours=24)).isoformat()
+                }
             
         except docker.errors.ImageNotFound:
             return {
@@ -80,34 +130,54 @@ class DockerManager:
             }
     
     def stop_container(self, user_id, challenge_id):
-        """Stop a container for a specific user and challenge"""
+        """Stop a user's session (not the whole container unless no users left)"""
         
         if self.mock_mode:
             return self._mock_stop_container(user_id, challenge_id)
         
         try:
-            # Find containers matching the pattern
-            containers = self.client.containers.list(
-                filters={'name': f'cyberlab_user{user_id}_chal{challenge_id}'}
-            )
+            container_name = f"cyberlab_challenge_{challenge_id}"
             
-            if not containers:
-                return {'error': 'No active container found'}
+            # Note: We DON'T stop the container immediately
+            # Just end the user's session
+            # Container stays running for other users
             
-            # Stop all matching containers
-            for container in containers:
-                container.stop(timeout=5)
-                container.remove(force=True)
+            print(f"🔌 Ending session for user {user_id} on challenge {challenge_id}")
+            print(f"   Container {container_name} remains running for other users")
             
             return {
                 'success': True,
-                'message': f'Stopped {len(containers)} container(s)'
+                'message': 'Session ended. Container remains active for other users.'
             }
             
         except Exception as e:
             return {
-                'error': f'Failed to stop container: {str(e)}'
+                'error': f'Failed to end session: {str(e)}'
             }
+    
+    def stop_container_admin(self, challenge_id):
+        """Admin function: Stop the entire shared container"""
+        
+        if self.mock_mode:
+            return {'success': True, 'message': 'Mock container stopped'}
+        
+        try:
+            container_name = f"cyberlab_challenge_{challenge_id}"
+            container = self.client.containers.get(container_name)
+            container.stop(timeout=5)
+            # Container will auto-remove due to remove=True flag
+            
+            print(f"🛑 Stopped shared container for challenge {challenge_id}")
+            
+            return {
+                'success': True,
+                'message': f'Stopped container for challenge {challenge_id}'
+            }
+            
+        except docker.errors.NotFound:
+            return {'error': 'Container not found'}
+        except Exception as e:
+            return {'error': f'Failed to stop container: {str(e)}'}
     
     def stop_container_by_id(self, container_id):
         """Stop a specific container by ID (admin function)"""

@@ -1,5 +1,6 @@
 """
 Database Module - SQLite Database Setup and Management
+MODIFIED FOR SHARED CONTAINERS
 """
 
 import sqlite3
@@ -72,18 +73,30 @@ def init_db(db_path='cyberlab.db'):
         FOREIGN KEY (user_id) REFERENCES users(id)
     )''')
     
-    # Active containers table
+    # Active containers table (SHARED CONTAINERS - one per challenge)
     c.execute('''CREATE TABLE IF NOT EXISTS active_containers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        challenge_id INTEGER NOT NULL,
+        challenge_id INTEGER NOT NULL UNIQUE,
         container_id TEXT NOT NULL,
         host TEXT,
         port TEXT,
         started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        expires_at TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id),
+        last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (challenge_id) REFERENCES challenges(id)
+    )''')
+    
+    # User sessions table (track which users are using which containers)
+    c.execute('''CREATE TABLE IF NOT EXISTS user_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        challenge_id INTEGER NOT NULL,
+        session_id TEXT NOT NULL,
+        container_id TEXT NOT NULL,
+        started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (challenge_id) REFERENCES challenges(id),
+        UNIQUE(user_id, challenge_id)
     )''')
     
     # AI interactions table
